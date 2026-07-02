@@ -1,0 +1,8 @@
+{
+  "name": "ISHGuard Mobile",
+  "version": "1.0.0",
+  "note": "Placeholder file. Replace with a real APK build.",
+  "buildInstructions": "Run: npm run build:mobile",
+  "downloadUrl": "/downloads/ISHGuard-Mobile-1.0.0.apk",
+  "lastUpdated": "2026-07-02T12:25:55.712Z"
+}

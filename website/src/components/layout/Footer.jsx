@@ -22,27 +22,13 @@ export default function Footer() {
             <p className="text-sm text-gray-400 leading-relaxed mb-4">
               Enterprise-grade AI cybersecurity platform protecting your digital world with proactive threat detection.
             </p>
-            <p className="text-xs text-gray-500 mb-4 flex items-center gap-1.5">
+            <p className="text-xs text-gray-500 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
               Powered by{' '}
               <a href="https://ishconnect.rw" target="_blank" rel="noopener noreferrer" className="text-brand hover:text-brand-light font-semibold transition-colors">
                 ISHConnect
               </a>
             </p>
-            <div className="space-y-2">
-              <a href="https://wa.me/250787377750" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-sm text-gray-400 hover:text-brand transition-colors group">
-                <div className="p-1.5 rounded-md bg-white/5 group-hover:bg-brand/10 transition-colors">
-                  <Phone className="w-3.5 h-3.5" />
-                </div>
-                <span>+250 787 377 750</span>
-              </a>
-              <a href="mailto:ishconnlab@gmail.com" className="flex items-center gap-2.5 text-sm text-gray-400 hover:text-brand transition-colors group">
-                <div className="p-1.5 rounded-md bg-white/5 group-hover:bg-brand/10 transition-colors">
-                  <Mail className="w-3.5 h-3.5" />
-                </div>
-                <span>ishconnlab@gmail.com</span>
-              </a>
-            </div>
           </div>
 
           <div>
@@ -129,10 +115,14 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-500">
-            &copy; 2025 ISHGuard. All rights reserved.
+            &copy; 2026 ISHGuard. All rights reserved.
           </p>
-          <div className="flex items-center gap-3">
-            <a href="https://github.com/ishguard" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white/5 hover:bg-brand/10 text-gray-400 hover:text-brand transition-all">
+          <div className="flex items-center gap-4">
+            <Link to="/privacy" className="text-xs text-gray-500 hover:text-brand transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="text-xs text-gray-500 hover:text-brand transition-colors">Terms of Service</Link>
+            <Link to="/license" className="text-xs text-gray-500 hover:text-brand transition-colors">License</Link>
+            <span className="w-px h-4 bg-white/10" />
+            <a href="https://github.com/ishconnlab/ishguard" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white/5 hover:bg-brand/10 text-gray-400 hover:text-brand transition-all" aria-label="GitHub">
               <Github className="w-4 h-4" />
             </a>
           </div>
