@@ -1,0 +1,56 @@
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          DEFAULT: '#FF6B00',
+          light: '#FF8C00',
+          dark: '#E05A00',
+          50: '#FFF3E6',
+          100: '#FFE0B3',
+          200: '#FFCC80',
+          300: '#FFB84D',
+          400: '#FFA31A',
+          500: '#FF6B00',
+          600: '#CC5500',
+          700: '#994000',
+          800: '#662A00',
+          900: '#331500',
+        },
+        dark: {
+          50: '#F5F5F5',
+          100: '#E5E5E5',
+          200: '#D4D4D4',
+          300: '#A3A3A3',
+          400: '#737373',
+          500: '#525252',
+          600: '#404040',
+          700: '#2F3437',
+          800: '#1A1D20',
+          900: '#050A12',
+        },
+        safe: { DEFAULT: '#18C964', light: '#4ADE80' },
+        warning: { DEFAULT: '#F5A524', light: '#FACC15' },
+        risk: { DEFAULT: '#FF4D4F', light: '#FF6B6B' },
+        info: { DEFAULT: '#3B82F6', light: '#60A5FA' },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      animation: {
+        'pulse-slow': 'pulse 3s ease-in-out infinite',
+        'float': 'float 3s ease-in-out infinite',
+        'slide-up': 'slideUp 0.5s ease-out',
+        'scale-in': 'scaleIn 0.3s ease-out',
+        'fade-in': 'fadeIn 0.3s ease-out',
+      },
+      boxShadow: {
+        'glow': '0 0 20px rgba(255, 107, 0, 0.3), 0 0 60px rgba(255, 107, 0, 0.1)',
+        'glow-sm': '0 0 10px rgba(255, 107, 0, 0.2)',
+      },
+    },
+  },
+  plugins: [],
+};

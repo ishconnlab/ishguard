@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/branding/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ISHGuard v3 — Enterprise AI Cybersecurity Platform. AI-powered, offline-first security for Windows, Web & Android by ishconnect.rw" />
+    <meta name="keywords" content="cybersecurity, AI security, antivirus, ransomware protection, endpoint security, ishguard, enterprise security" />
+    <meta name="author" content="ISHConnect | ishconnect.rw" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="ISHGuard v3 — Enterprise AI Cybersecurity Platform" />
+    <meta property="og:description" content="AI-powered, offline-first cybersecurity for the modern enterprise. Protect your devices with intelligent threat detection." />
+    <meta property="og:image" content="/branding/logo.svg" />
+    <meta property="og:url" content="https://ishconnect.rw" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ISHGuard v3 — Enterprise AI Cybersecurity" />
+    <meta name="twitter:description" content="AI-powered, offline-first cybersecurity for the modern enterprise." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#FF6B00" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ISHGuard" />
+    <link rel="apple-touch-icon" href="/branding/logo-icon.svg" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ISHGuard",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Windows, Android",
+      "description": "Enterprise AI Cybersecurity Platform with AI-powered offline threat detection.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "ISHConnect",
+        "url": "https://ishconnect.rw"
+      }
+    }
+    </script>
+    <title>ISHGuard v3 — Enterprise AI Cybersecurity Platform</title>
+    <script>
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.deferredPrompt = e;
+      });
+    </script>
+  </head>
+  <body class="bg-dark-900 text-white antialiased">
+    <div id="splash" style="position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#050A12;transition:opacity .5s">
+      <svg width="80" height="80" viewBox="0 0 128 128" fill="none" style="animation:pulse 1.5s ease-in-out infinite">
+        <path d="M64 8 L112 24 L112 60 C112 88 88 112 64 120 C40 112 16 88 16 60 L16 24 Z" fill="none" stroke="#FF6B00" stroke-width="4"/>
+        <text x="64" y="78" text-anchor="middle" font-family="Inter,sans-serif" font-weight="800" font-size="42" fill="#FF6B00">IS</text>
+      </svg>
+      <div style="margin-top:24px;width:200px;height:3px;background:rgba(255,107,0,0.2);border-radius:2px;overflow:hidden">
+        <div id="splash-bar" style="height:100%;width:0%;background:#FF6B00;border-radius:2px;transition:width 2s ease"></div>
+      </div>
+      <p id="splash-text" style="margin-top:16px;color:rgba(255,255,255,0.4);font-family:Inter,sans-serif;font-size:13px;letter-spacing:0.5px">Initializing security engines...</p>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    <script>
+      const messages = [
+        'Initializing security engines...',
+        'Calibrating AI threat detection...',
+        'Loading behavioral analysis models...',
+        'Establishing secure communication...',
+        'Preparing enterprise protection suite...',
+        'ISHGuard v3 ready'
+      ];
+      let i = 0;
+      const el = document.getElementById('splash-text');
+      const bar = document.getElementById('splash-bar');
+      const interval = setInterval(() => {
+        i++;
+        if (i < messages.length) {
+          el.textContent = messages[i];
+          bar.style.width = (i / (messages.length - 1)) * 100 + '%';
+        }
+      }, 600);
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          clearInterval(interval);
+          bar.style.width = '100%';
+          setTimeout(() => {
+            const splash = document.getElementById('splash');
+            splash.style.opacity = '0';
+            setTimeout(() => splash.remove(), 500);
+          }, 300);
+        }, 400);
+      });
+    </script>
+  </body>
+</html>

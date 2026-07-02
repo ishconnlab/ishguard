@@ -1,0 +1,13 @@
+{
+  "name": "@ishguard/engine",
+  "version": "3.0.0",
+  "description": "ISHGuard v3 AI Security Engine – enterprise offline threat detection with behavioral analysis, ransomware detection, and intelligent protection",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

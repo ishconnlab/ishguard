@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0B1F3B"/>
+      <stop offset="100%" stop-color="#050A12"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF6B00"/>
+      <stop offset="100%" stop-color="#FF8C00"/>
+    </linearGradient>
+    <clipPath id="shieldClip">
+      <path d="M64 8 L112 24 L112 60 C112 88 88 112 64 120 C40 112 16 88 16 60 L16 24 Z"/>
+    </clipPath>
+  </defs>
+  <path d="M64 8 L112 24 L112 60 C112 88 88 112 64 120 C40 112 16 88 16 60 L16 24 Z" fill="url(#shieldGrad)" stroke="url(#accentGrad)" stroke-width="4"/>
+  <g clip-path="url(#shieldClip)">
+    <path d="M30 45 L45 38 L55 52 L70 36 L85 50 L100 42" stroke="#FF6B00" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <path d="M35 58 L50 65 L65 56 L80 68 L95 62" stroke="#FF6B00" stroke-width="1.5" fill="none" opacity="0.4"/>
+    <circle cx="45" cy="38" r="2.5" fill="#FF6B00" opacity="0.7"/>
+    <circle cx="70" cy="36" r="2.5" fill="#FF6B00" opacity="0.7"/>
+    <circle cx="100" cy="42" r="2.5" fill="#FF6B00" opacity="0.7"/>
+  </g>
+  <path d="M64 82 L64 82" stroke="url(#accentGrad)" stroke-width="1.5"/>
+  <text x="64" y="82" text-anchor="middle" font-family="'Inter',system-ui,-apple-system,sans-serif" font-weight="800" font-size="42" fill="url(#accentGrad)">IS</text>
+</svg>

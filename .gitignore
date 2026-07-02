@@ -1,0 +1,14 @@
+node_modules/
+dist/
+release/
+*.exe
+*.dll
+*.log
+.DS_Store
+Thumbs.db
+*.local
+out/
+*.vsix
+desktop/resources/logo.ico
+desktop/resources/logo.svg
+website/public/downloads/

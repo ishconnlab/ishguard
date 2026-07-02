@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="accentGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF6B00"/>
+      <stop offset="100%" stop-color="#FF8C00"/>
+    </linearGradient>
+    <linearGradient id="circuitGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF6B00" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#FF6B00" stop-opacity="0.4"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="shieldClip">
+      <path d="M256 32 L448 96 L448 240 C448 360 360 448 256 480 C152 448 64 360 64 240 L64 96 Z"/>
+    </clipPath>
+  </defs>
+  <path d="M256 32 L448 96 L448 240 C448 360 360 448 256 480 C152 448 64 360 64 240 L64 96 Z" fill="#FFFFFF" stroke="url(#accentGrad)" stroke-width="10"/>
+  <g clip-path="url(#shieldClip)">
+    <path d="M120 160 L180 130 L220 180 L280 120 L340 170 L400 140" stroke="url(#circuitGrad)" stroke-width="3" fill="none" opacity="0.7"/>
+    <path d="M160 200 L200 230 L260 190 L320 240 L380 210" stroke="url(#circuitGrad)" stroke-width="2.5" fill="none" opacity="0.6"/>
+    <path d="M140 270 L190 300 L250 260 L310 310 L370 280" stroke="url(#circuitGrad)" stroke-width="2" fill="none" opacity="0.5"/>
+    <circle cx="180" cy="130" r="5" fill="#FF6B00" opacity="0.9"/>
+    <circle cx="280" cy="120" r="5" fill="#FF6B00" opacity="0.9"/>
+    <circle cx="400" cy="140" r="5" fill="#FF6B00" opacity="0.9"/>
+    <circle cx="200" cy="230" r="4" fill="#FF6B00" opacity="0.7"/>
+    <circle cx="320" cy="240" r="4" fill="#FF6B00" opacity="0.7"/>
+    <circle cx="250" cy="260" r="4" fill="#FF6B00" opacity="0.7"/>
+    <circle cx="310" cy="310" r="3" fill="#FF6B00" opacity="0.6"/>
+    <circle cx="370" cy="280" r="3" fill="#FF6B00" opacity="0.6"/>
+  </g>
+  <path d="M256 160 L304 200 L304 280 C304 330 280 370 256 390 C232 370 208 330 208 280 L208 200 Z" fill="url(#accentGrad)" opacity="0.12"/>
+  <path d="M256 180 L292 210 L292 275 C292 318 274 350 256 365 C238 350 220 318 220 275 L220 210 Z" stroke="#FF6B00" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M256 32 L448 96 L448 240 C448 360 360 448 256 480 C152 448 64 360 64 240 L64 96 Z" stroke="url(#accentGrad)" stroke-width="10" fill="none"/>
+  <text x="256" y="310" text-anchor="middle" font-family="'Inter',system-ui,-apple-system,sans-serif" font-weight="800" font-size="140" fill="url(#accentGrad)" filter="url(#glow)">ISH</text>
+</svg>

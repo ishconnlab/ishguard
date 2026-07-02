@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <path d="M256 32 L448 96 L448 240 C448 360 360 448 256 480 C152 448 64 360 64 240 L64 96 Z" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+  <path d="M256 160 L304 200 L304 280 C304 330 280 370 256 390 C232 370 208 330 208 280 L208 200 Z" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.3"/>
+  <text x="256" y="310" text-anchor="middle" font-family="'Inter',system-ui,-apple-system,sans-serif" font-weight="800" font-size="140" fill="#FFFFFF">ISH</text>
+</svg>

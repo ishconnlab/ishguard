@@ -1,0 +1,19 @@
+{
+  "name": "ISHGuard Security",
+  "short_name": "ISHGuard",
+  "description": "Enterprise AI Cybersecurity Platform by ISHConnect",
+  "start_url": "/#/dashboard",
+  "display": "standalone",
+  "background_color": "#050A12",
+  "theme_color": "#FF6B00",
+  "orientation": "any",
+  "icons": [
+    { "src": "/branding/favicon.svg", "sizes": "32x32", "type": "image/svg+xml" },
+    { "src": "/branding/logo-icon.svg", "sizes": "128x128", "type": "image/svg+xml" },
+    { "src": "/branding/logo-icon.svg", "sizes": "192x192", "type": "image/svg+xml" },
+    { "src": "/branding/logo-icon.svg", "sizes": "512x512", "type": "image/svg+xml" }
+  ],
+  "categories": ["security", "productivity", "utilities"],
+  "lang": "en-US",
+  "scope": "/"
+}

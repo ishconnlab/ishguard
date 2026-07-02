@@ -1,0 +1,79 @@
+{
+  "name": "ishguard",
+  "version": "3.0.0",
+  "description": "ISHGuard v3 Enterprise AI Cybersecurity Agent — Windows Desktop Application",
+  "main": "main.js",
+  "scripts": {
+    "dev": "electron .",
+    "build": "electron-builder --win --x64",
+    "pack": "electron-builder --win --x64 --dir",
+    "dist": "electron-builder --win --x64 --publish never"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.ishguard.agent",
+    "productName": "ISHGuard Enterprise Security",
+    "copyright": "Copyright © 2026 ISHGuard Security — ishconnect.rw",
+    "directories": {
+      "output": "release",
+      "buildResources": "resources"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../engine",
+        "to": "engine",
+        "filter": ["**/*", "!node_modules"]
+      }
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "../engine/**"
+    ],
+    "compression": "maximum",
+    "removePackageScripts": true,
+    "npmRebuild": false,
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "resources/logo.ico",
+      "signAndEditExecutable": false,
+      "sign": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ISHGuard Enterprise Security",
+      "installerIcon": "resources/logo.ico",
+      "uninstallerIcon": "resources/logo.ico",
+      "installerHeaderIcon": "resources/logo.ico",
+      "license": "",
+      "artifactName": "ISHGuard-Setup-${version}.${ext}",
+      "unicode": true,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "displayLanguageSelector": false,
+      "differentialPackage": false
+    },
+    "portable": {
+      "artifactName": "ISHGuard.exe",
+      "requestExecutionLevel": "user",
+      "unpackDirName": "ishguard"
+    }
+  }
+}

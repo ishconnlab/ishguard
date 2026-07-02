@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <path d="M64 8 L112 24 L112 60 C112 88 88 112 64 120 C40 112 16 88 16 60 L16 24 Z" fill="#0B1F3B" stroke="#FF6B00" stroke-width="4" />
+  <text x="64" y="78" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="48" fill="#FF6B00">IS</text>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <clipPath id="shield-clip">
+      <path d="M256 32 L448 96 L448 240 C448 352 352 448 256 480 C160 448 64 352 64 240 L64 96 Z"/>
+    </clipPath>
+  </defs>
+  <path d="M256 32 L448 96 L448 240 C448 352 352 448 256 480 C160 448 64 352 64 240 L64 96 Z" fill="#0B1F3B" stroke="#FF6B00" stroke-width="12"/>
+  <text x="256" y="290" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="180" fill="#FF6B00">ISH</text>
+</svg>
