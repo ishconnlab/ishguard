@@ -12,8 +12,8 @@ const platforms = [
     type: 'Desktop Agent',
     features: ['Full AI protection suite', 'Real-time monitoring', 'System tray integration', 'All scanner modules', 'Quarantine management', 'Security hardening'],
     installers: [
-      { label: 'Installer (.exe) — 71 MB', file: 'ISHGuard-Setup-3.0.0.exe', primary: true },
-      { label: 'Portable (.exe) — 71 MB', file: 'ISHGuard.exe' },
+      { label: 'Installer (.exe) — 71 MB', href: 'https://github.com/ishconnlab/ishguard/releases/download/v3.0.0/ISHGuard-Setup-3.0.0.exe', primary: true },
+      { label: 'Portable (.exe) — 71 MB', href: 'https://github.com/ishconnlab/ishguard/releases/download/v3.0.0/ISHGuard.exe' },
     ],
   },
   {
@@ -24,7 +24,7 @@ const platforms = [
     type: 'Mobile Companion',
     features: ['Device health monitoring', 'Permission auditing', 'AI security analysis', 'Content vault', 'Network security check', 'Biometric auth'],
     installers: [
-      { label: 'APK Download', file: 'ISHGuard-Mobile-1.0.0.apk', primary: true },
+      { label: 'APK Download', href: 'https://github.com/ishconnlab/ishguard/releases/download/v3.0.0/ISHGuard-Mobile-1.0.0.apk', primary: true },
       { label: 'Request APK via WhatsApp', external: 'https://wa.me/250787377750' },
     ],
   },
@@ -104,7 +104,7 @@ export default function Download() {
                     if (inst.to) return <Button key={i} to={inst.to} variant={inst.primary ? 'primary' : 'secondary'} size="lg" icon={inst.primary ? DownloadIcon : Globe} className="w-full justify-center">{inst.label}</Button>;
                     if (inst.external) return <Button key={i} href={inst.external} variant={inst.primary ? 'primary' : 'secondary'} size="lg" icon={DownloadIcon} className="w-full justify-center">{inst.label}</Button>;
                     if (inst.action === 'pwa') return <Button key={i} variant="secondary" size="lg" icon={DownloadIcon} className="w-full justify-center" onClick={() => { if (window.deferredPrompt) { window.deferredPrompt.prompt(); } }}>{inst.label}</Button>;
-                    if (inst.file) return <Button key={i} href={`/downloads/${inst.file}`} variant={inst.primary ? 'primary' : 'secondary'} size="lg" icon={DownloadIcon} className="w-full justify-center">{inst.label}</Button>;
+                    if (inst.href) return <Button key={i} href={inst.href} variant={inst.primary ? 'primary' : 'secondary'} size="lg" icon={DownloadIcon} className="w-full justify-center">{inst.label}</Button>;
                     return null;
                   })}
                 </div>

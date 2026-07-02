@@ -11,4 +11,4 @@ out/
 *.vsix
 desktop/resources/logo.ico
 desktop/resources/logo.svg
-# installer binaries committed for Vercel deployment — see website/public/downloads/
+website/public/downloads/
