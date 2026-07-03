@@ -393,6 +393,9 @@
       ${navBtn('screen-lock', 'Smart Screen Lock', 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z')}
       ${navBtn('lock-screen', 'Lock Screen', 'M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z')}
       ${navBtn('emergency-lock', 'Emergency Lock', 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z')}
+      <div class="nav-section">System Optimization</div>
+      ${navBtn('privacy-cleaner', 'Privacy Cleaner', 'M9.75 3.75v2.25m0 0a2.25 2.25 0 002.25 2.25h1.5m-3.75-4.5a2.25 2.25 0 00-2.25 2.25v1.5m0 0H6.75a2.25 2.25 0 00-2.25 2.25v1.5m0 0H3.75m0 0a2.25 2.25 0 01-2.25-2.25v-1.5m0 0H3.75m0 0V7.5a2.25 2.25 0 012.25-2.25h1.5M12 12l-3 3m0 0l3 3m-3-3h12')}
+      ${navBtn('security-policies', 'Security Policies', 'M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z')}
       <div class="nav-section">Smart Vault</div>
       ${navBtn('vault', 'Content Vault', 'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z')}
       ${navBtn('vault-reader', 'Reader Mode', 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25')}
@@ -420,7 +423,9 @@
       'folder-guardian': ['Folder AI Guardian', 'Behavioral AI folder protection'],
       'screen-lock': ['Smart Screen Lock', 'Face, PIN & password authentication'],
       'lock-screen': ['Lock Screen', 'Premium security lock screen display'],
-      'emergency-lock': ['Emergency Lock', 'One-click maximum security mode']
+      'emergency-lock': ['Emergency Lock', 'One-click maximum security mode'],
+      'privacy-cleaner': ['Privacy Cleaner', 'Remove temporary files, caches & browsing data'],
+      'security-policies': ['Security Policies', 'Windows security configuration & hardening']
     };
     const t = titles['dashboard'];
     return `
@@ -471,7 +476,9 @@
       'folder-guardian': ['Folder AI Guardian', 'Behavioral AI folder protection'],
       'screen-lock': ['Smart Screen Lock', 'Face, PIN & password authentication'],
       'lock-screen': ['Lock Screen', 'Premium security lock screen display'],
-      'emergency-lock': ['Emergency Lock', 'One-click maximum security mode']
+      'emergency-lock': ['Emergency Lock', 'One-click maximum security mode'],
+      'privacy-cleaner': ['Privacy Cleaner', 'Remove temporary files, caches & browsing data'],
+      'security-policies': ['Security Policies', 'Windows security configuration & hardening']
     };
     const t = titles[view] || ['Unknown', ''];
     document.getElementById('tb-title').textContent = t[0];
@@ -491,7 +498,8 @@
     else if (view === 'folder-guardian') { c.innerHTML = viewFolderGuardian(); loadFolderGuardian(); }
     else if (view === 'screen-lock') { c.innerHTML = viewScreenLock(); loadScreenLock(); }
     else if (view === 'lock-screen') { c.innerHTML = viewLockScreen(); }
-    else if (view === 'emergency-lock') { c.innerHTML = viewEmergencyLock(); }
+    else if (view === 'privacy-cleaner') { c.innerHTML = viewPrivacyCleaner(); }
+    else if (view === 'security-policies') { c.innerHTML = viewSecurityPolicies(); loadSecurityPolicies(); }
     setTimeout(() => c.className = 'view-container', 300);
     updateAiBadge();
   }
@@ -813,7 +821,6 @@
         </button>
       </div>
       <div id="threat-results" style="display:none;"></div>`;
-    <div id="threat-results" style="display:none;"></div>`;
   }
 
   window.startThreatScan = async function(type) {
@@ -2019,6 +2026,594 @@
       if (wc) wc.textContent = e.target.value.split(/\s+/).filter(w => w.length > 0).length + ' words';
     }
   });
+
+  /* ── PRIVACY CLEANER ── */
+  let _privacyScanResult = null;
+  let _privacySelected = new Set();
+  let _privacyCleanLog = null;
+
+  function viewPrivacyCleaner() {
+    return `
+    <div style="max-width:900px;">
+      <div class="pm-hero animate-in"><div><h2>Privacy Cleaner</h2><p>Scan and safely remove temporary files, browser caches, and application data</p></div>
+        <div style="display:flex;gap:8px;">
+          <button class="pm-btn pm-btn-primary" onclick="window.privacyRunScan()" id="btn-privacy-scan">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            Preview Scan
+          </button>
+          <button class="pm-btn pm-btn-secondary" onclick="window.privacyCleanSelected()" id="btn-privacy-clean" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+            Clean Selected
+          </button>
+          <button class="pm-btn pm-btn-secondary" onclick="window.privacyRefresh()" id="btn-privacy-refresh">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+            Refresh
+          </button>
+          <button class="pm-btn pm-btn-ghost" onclick="window.privacyExportReport()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+            Export Report
+          </button>
+        </div>
+      </div>
+
+      <div id="privacy-stats-bar" style="display:none;" class="pm-grid-4 mb-md">
+        <div class="pm-card"><div class="pm-stat"><div class="pm-stat-icon" style="background:rgba(255,107,0,0.12);color:#FF6B00;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg></div><div><div class="pm-stat-value" id="privacy-total-size">0 B</div><div class="pm-stat-label">Reclaimable Space</div></div></div></div>
+        <div class="pm-card"><div class="pm-stat"><div class="pm-stat-icon" style="background:rgba(245,165,36,0.12);color:#F5A524;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div><div><div class="pm-stat-value" id="privacy-total-files">0</div><div class="pm-stat-label">Files to Clean</div></div></div></div>
+        <div class="pm-card"><div class="pm-stat"><div class="pm-stat-icon" style="background:rgba(24,201,100,0.12);color:#18C964;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><div><div class="pm-stat-value" id="privacy-categories">0</div><div class="pm-stat-label">Categories</div></div></div></div>
+        <div class="pm-card"><div class="pm-stat"><div class="pm-stat-icon" style="background:rgba(59,130,246,0.12);color:#3B82F6;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg></div><div><div class="pm-stat-value" id="privacy-last-cleaned">Never</div><div class="pm-stat-label">Last Cleaned</div></div></div></div>
+      </div>
+
+      <div id="privacy-scan-ring" style="display:none;" class="flex-center flex-col" style="padding:40px;">
+        <div class="scan-ring-container">
+          <div class="scan-ring-pulse"></div>
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <circle class="scan-ring-bg" cx="70" cy="70" r="64"/>
+            <circle id="privacy-scan-arc" class="scan-ring-fg" cx="70" cy="70" r="64" stroke-dashoffset="0" style="stroke-dasharray:400;"/>
+          </svg>
+          <div class="scan-center">
+            <div style="text-align:center;">
+              <div id="privacy-sp-pct" style="font-size:22px;font-weight:800;font-family:\'SF Mono\',monospace;color:#FF6B00;">Scanning</div>
+              <div id="privacy-sp-files" style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;">Analyzing system...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="privacy-categories-list"></div>
+      <div id="privacy-progress-bar" style="display:none;" class="card mb-md">
+        <div class="card-title">Cleaning Progress</div>
+        <div class="pm-progress"><div id="privacy-progress-fill" class="pm-progress-bar" style="width:0%;background:#FF6B00;"></div></div>
+        <div id="privacy-progress-text" style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:6px;">Starting...</div>
+      </div>
+      <div id="privacy-clean-log"></div>
+    </div>`;
+  }
+
+  window.privacyRunScan = async function() {
+    if (!window.ishguard) return;
+    const btn = document.getElementById('btn-privacy-scan');
+    if (btn) { btn.disabled = true; btn.textContent = ' Scanning...'; }
+
+    const ring = document.getElementById('privacy-scan-ring');
+    const list = document.getElementById('privacy-categories-list');
+    const statsBar = document.getElementById('privacy-stats-bar');
+    const cleanLog = document.getElementById('privacy-clean-log');
+    if (ring) ring.style.display = '';
+    if (list) list.innerHTML = '';
+    if (cleanLog) cleanLog.innerHTML = '';
+    if (statsBar) statsBar.style.display = 'none';
+
+    try {
+      const result = await window.ishguard.privacyScan();
+      _privacyScanResult = result;
+      _privacySelected = new Set();
+
+      if (ring) ring.style.display = 'none';
+
+      if (statsBar) {
+        statsBar.style.display = '';
+        document.getElementById('privacy-total-size').textContent = result.totalFormatted || '0 B';
+        document.getElementById('privacy-total-files').textContent = result.totalFiles || 0;
+        document.getElementById('privacy-categories').textContent = result.categories?.length || 0;
+      }
+
+      const lastCleaned = await window.ishguard.privacyLastCleaned();
+      const lastEl = document.getElementById('privacy-last-cleaned');
+      if (lastEl) {
+        if (lastCleaned && lastCleaned.timestamp) {
+          lastEl.textContent = new Date(lastCleaned.timestamp).toLocaleDateString();
+        } else {
+          lastEl.textContent = 'Never';
+        }
+      }
+
+      if (list) {
+        list.innerHTML = renderPrivacyCategories(result);
+      }
+
+      const cleanBtn = document.getElementById('btn-privacy-clean');
+      if (cleanBtn) cleanBtn.disabled = false;
+    } catch (e) {
+      if (ring) ring.style.display = 'none';
+      if (list) list.innerHTML = '<div class="card" style="text-align:center;padding:40px;color:#ef4444;">Error: ' + e.message + '</div>';
+    }
+
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> Preview Scan'; }
+  };
+
+  window.privacyRefresh = function() { window.privacyRunScan(); };
+
+  function renderPrivacyCategories(result) {
+    if (!result || !result.categories || result.categories.length === 0) {
+      return '<div class="card" style="text-align:center;padding:40px;"><div style="font-size:32px;margin-bottom:8px;">✅</div><div style="color:#4ade80;font-weight:600;">No privacy items found — your system is clean</div></div>';
+    }
+
+    let html = '<div class="card"><div class="flex-center" style="justify-content:space-between;margin-bottom:12px;">';
+    html += '<div><div class="card-title" style="margin-bottom:0;">Items to Clean</div><div style="font-size:11px;color:rgba(255,255,255,0.3);">Select categories and click Clean Selected</div></div>';
+    html += '<div style="display:flex;gap:8px;"><button class="btn btn-sm btn-ghost" onclick="window.privacySelectAll()">Select All</button><button class="btn btn-sm btn-ghost" onclick="window.privacyDeselectAll()">Deselect All</button></div></div>';
+
+    let currentType = '';
+    for (const cat of result.categories) {
+      if (!cat.scanned) continue;
+
+      const catType = cat.type || (cat.app ? 'app-cache' : cat.browser ? 'browser' : 'windows');
+      const typeLabel = cat.app ? cat.app : cat.browser ? cat.browser : 'Windows System';
+      const typeHeader = cat.app ? 'Application Cache' : cat.browser ? 'Browser Data' : 'Windows System';
+
+      if (currentType !== catType) {
+        if (currentType !== '') html += '</div>';
+        currentType = catType;
+        html += `<div style="margin-top:16px;"><div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">${typeHeader}</div></div>`;
+      }
+
+      const id = cat.id;
+      const checked = _privacySelected.has(id) ? 'checked' : '';
+      html += `
+        <div class="threat-item" style="cursor:pointer;" onclick="window.privacyToggleItem('${id}')">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;">
+            <input type="checkbox" id="chk-${id}" ${checked} style="accent-color:#FF6B00;width:16px;height:16px;cursor:pointer;" onclick="event.stopPropagation();window.privacyToggleItem('${id}')">
+            <div>
+              <div class="threat-name">${cat.icon || '📄'} ${cat.name}</div>
+              <div class="threat-file">${cat.files > 0 ? cat.files + ' files' : 'No files'} ${cat.size > 0 ? '· ' + fmtBytes(cat.size) : ''}</div>
+            </div>
+          </div>
+          <span style="font-size:12px;color:${cat.size > 0 ? '#facc15' : 'rgba(255,255,255,0.2)'};">${cat.size > 0 ? fmtBytes(cat.size) : 'Empty'}</span>
+        </div>`;
+    }
+    if (currentType !== '') html += '</div>';
+
+    html += '<div style="padding:12px 0 0;border-top:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;">';
+    html += '<div style="font-size:12px;color:rgba(255,255,255,0.3);"><span id="privacy-selected-count">0</span> selected</div>';
+    html += '<div style="font-size:14px;font-weight:700;color:#FF6B00;">Total: ' + result.totalFormatted + '</div>';
+    html += '</div></div>';
+
+    return html;
+  }
+
+  window.privacyToggleItem = function(id) {
+    if (_privacySelected.has(id)) _privacySelected.delete(id);
+    else _privacySelected.add(id);
+    const chk = document.getElementById('chk-' + id);
+    if (chk) chk.checked = _privacySelected.has(id);
+    const countEl = document.getElementById('privacy-selected-count');
+    if (countEl) countEl.textContent = _privacySelected.size;
+  };
+
+  window.privacySelectAll = function() {
+    if (!_privacyScanResult || !_privacyScanResult.categories) return;
+    for (const cat of _privacyScanResult.categories) {
+      if (cat.scanned) _privacySelected.add(cat.id);
+    }
+    for (const cat of _privacyScanResult.categories) {
+      const chk = document.getElementById('chk-' + cat.id);
+      if (chk) chk.checked = true;
+    }
+    const countEl = document.getElementById('privacy-selected-count');
+    if (countEl) countEl.textContent = _privacySelected.size;
+  };
+
+  window.privacyDeselectAll = function() {
+    _privacySelected.clear();
+    if (_privacyScanResult && _privacyScanResult.categories) {
+      for (const cat of _privacyScanResult.categories) {
+        const chk = document.getElementById('chk-' + cat.id);
+        if (chk) chk.checked = false;
+      }
+    }
+    const countEl = document.getElementById('privacy-selected-count');
+    if (countEl) countEl.textContent = '0';
+  };
+
+  window.privacyCleanSelected = async function() {
+    if (_privacySelected.size === 0) {
+      showAlert('Please select items to clean first.', 'Privacy Cleaner');
+      return;
+    }
+    if (!window.ishguard) return;
+
+    const confirmed = await showConfirm(`Clean ${_privacySelected.size} selected item(s)?\n\nThis will delete temporary files and caches. Browser passwords and bookmarks will NOT be affected.`, 'Privacy Cleaner');
+    if (!confirmed) return;
+
+    const cleanBtn = document.getElementById('btn-privacy-clean');
+    if (cleanBtn) { cleanBtn.disabled = true; cleanBtn.textContent = ' Cleaning...'; }
+
+    const progressBar = document.getElementById('privacy-progress-bar');
+    const progressFill = document.getElementById('privacy-progress-fill');
+    const progressText = document.getElementById('privacy-progress-text');
+    const logEl = document.getElementById('privacy-clean-log');
+
+    if (progressBar) progressBar.style.display = '';
+    if (progressFill) progressFill.style.width = '0%';
+    if (progressText) progressText.textContent = 'Starting...';
+
+    try {
+      const ids = Array.from(_privacySelected);
+      const result = await window.ishguard.privacyClean(ids);
+      _privacyCleanLog = result;
+
+      if (progressFill) progressFill.style.width = '100%';
+      if (progressText) progressText.textContent = 'Complete!';
+
+      if (result.success) {
+        if (logEl) {
+          let logHtml = '<div class="card mt-md"><div class="card-title">Cleaning Results</div>';
+          logHtml += `<div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;">
+            <div><span style="color:#4ade80;font-weight:700;">${fmtBytes(result.totalFreed)}</span> freed</div>
+            <div><span style="color:#FF6B00;font-weight:700;">${result.totalFilesRemoved}</span> files removed</div>
+            <div><span style="color:rgba(255,255,255,0.3);">${(result.elapsed / 1000).toFixed(1)}s</span></div>
+          </div>`;
+          if (result.log && result.log.length > 0) {
+            logHtml += '<div class="scroll-area scroll-thin" style="max-height:300px;">';
+            for (const entry of result.log) {
+              const icon = entry.status === 'success' ? '✅' : entry.status === 'skipped' ? '⏭️' : '❌';
+              logHtml += `<div class="table-row" style="font-size:12px;"><span style="flex:1;">${icon} ${entry.category}</span><span style="color:${entry.status === 'success' ? '#4ade80' : '#facc15'};">${entry.filesRemoved ? entry.filesRemoved + ' files' : entry.status}</span></div>`;
+            }
+            logHtml += '</div>';
+          }
+          if (result.errors && result.errors.length > 0) {
+            logHtml += '<div style="margin-top:8px;color:#ef4444;font-size:12px;">Errors: ' + result.errors.map(e => e.error).join('; ') + '</div>';
+          }
+          logHtml += '</div>';
+          logEl.innerHTML = logHtml;
+        }
+
+        setTimeout(async () => {
+          await window.privacyRunScan();
+        }, 1000);
+      } else {
+        if (logEl) logEl.innerHTML = '<div class="card" style="text-align:center;color:#ef4444;padding:20px;">Error: ' + (result.error || 'Cleaning failed') + '</div>';
+      }
+    } catch (e) {
+      if (logEl) logEl.innerHTML = '<div class="card" style="text-align:center;color:#ef4444;padding:20px;">Error: ' + e.message + '</div>';
+    }
+
+    if (cleanBtn) { cleanBtn.disabled = false; cleanBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg> Clean Selected'; }
+  };
+
+  window.privacyExportReport = async function() {
+    if (!window.ishguard) return;
+    try {
+      const report = await window.ishguard.privacyExport();
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'privacy-report-' + new Date().toISOString().split('T')[0] + '.json';
+      a.click();
+      showAlert('Privacy report exported successfully.', 'Export');
+    } catch (e) {
+      showAlert('Export error: ' + e.message, 'Error');
+    }
+  };
+
+  /* ── SECURITY POLICIES ── */
+  let _policiesData = null;
+  let _securityScoreData = null;
+
+  function viewSecurityPolicies() {
+    return `
+    <div style="max-width:1000px;">
+      <div class="pm-hero animate-in"><div><h2>Windows Security Policies</h2><p>Centralized management of Windows security settings and hardening configuration</p></div>
+        <div style="display:flex;gap:8px;">
+          <button class="pm-btn pm-btn-primary" onclick="window.policiesRefresh()" id="btn-policies-refresh">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+            Refresh
+          </button>
+          <button class="pm-btn pm-btn-secondary" onclick="window.policiesExport()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+            Export Report
+          </button>
+        </div>
+      </div>
+
+      <div id="policies-score-card" class="pm-grid-4 mb-md"></div>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+        <button class="btn btn-sm btn-secondary" onclick="window.policiesShowAll()">All Policies</button>
+        <button class="btn btn-sm btn-ghost" onclick="window.policiesShowCategory('network')">Network</button>
+        <button class="btn btn-sm btn-ghost" onclick="window.policiesShowCategory('defender')">Defender</button>
+        <button class="btn btn-sm btn-ghost" onclick="window.policiesShowCategory('access')">Access Control</button>
+        <button class="btn btn-sm btn-ghost" onclick="window.policiesShowCategory('device')">Device</button>
+      </div>
+
+      <div id="policies-list"></div>
+
+      <div class="card mt-lg">
+        <div class="card-title">Interactive Login Banner</div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;">Configure a legal warning message displayed before user login. Recommended for business environments.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;">Banner Title</div>
+            <input id="banner-title-input" class="pm-input" type="text" value="ISHGUARD SECURITY SYSTEM" />
+          </div>
+          <div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;">Status</div>
+            <div id="banner-status" style="font-size:13px;color:rgba(255,255,255,0.3);">Checking...</div>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;">Banner Message</div>
+          <textarea id="banner-message-input" class="pm-input" style="min-height:120px;resize:vertical;font-family:'SF Mono',monospace;font-size:12px;">This system is owned and protected by IshGuard Security.
+
+        Access is restricted to authorized users only.
+
+        By continuing, you acknowledge that your activity may be monitored, recorded, and audited.
+
+        If you are not an authorized user, disconnect immediately.</textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="pm-btn pm-btn-primary" onclick="window.policiesPreviewBanner()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            Preview
+          </button>
+          <button class="pm-btn pm-btn-primary" onclick="window.policiesApplyBanner()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+            Apply
+          </button>
+          <button class="pm-btn pm-btn-danger" onclick="window.policiesRemoveBanner()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Remove Banner
+          </button>
+          <button class="pm-btn pm-btn-secondary" onclick="window.policiesRestoreBanner()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+            Restore Default
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  window.policiesShowAll = function() { renderPoliciesList(_policiesData); };
+  window.policiesShowCategory = function(cat) {
+    if (!_policiesData) return;
+    const filtered = _policiesData.filter(p => p.category === cat);
+    renderPoliciesList(filtered);
+  };
+
+  window.loadSecurityPolicies = async function() {
+    if (!window.ishguard) return;
+    try {
+      const policies = await window.ishguard.policiesList();
+      if (policies && !policies.error) _policiesData = policies;
+      const score = await window.ishguard.policiesScore();
+      if (score && !score.error) _securityScoreData = score;
+
+      renderPoliciesScore();
+      renderPoliciesList(policies);
+
+      const banner = await window.ishguard.policiesBannerGet();
+      if (banner && !banner.error) {
+        const statusEl = document.getElementById('banner-status');
+        if (statusEl) {
+          if (banner.configured) {
+            statusEl.innerHTML = '<span style="color:#4ade80;">● Configured</span>';
+            document.getElementById('banner-title-input').value = banner.title || '';
+            document.getElementById('banner-message-input').value = banner.message || '';
+          } else {
+            statusEl.innerHTML = '<span style="color:rgba(255,255,255,0.3);">○ Not Configured</span>';
+          }
+        }
+      }
+    } catch (e) {
+      const list = document.getElementById('policies-list');
+      if (list) list.innerHTML = '<div class="card" style="text-align:center;padding:40px;color:#ef4444;">Error loading policies: ' + e.message + '</div>';
+    }
+  };
+
+  window.policiesRefresh = function() { window.loadSecurityPolicies(); };
+
+  function renderPoliciesScore() {
+    const el = document.getElementById('policies-score-card');
+    if (!el || !_securityScoreData) return;
+    const s = _securityScoreData;
+    const color = s.riskLevel === 'critical' ? '#ef4444' : s.riskLevel === 'high' ? '#facc15' : s.riskLevel === 'medium' ? '#FF6B00' : '#4ade80';
+    const count = s.details ? s.details.length : 0;
+    const enabled = s.details ? s.details.filter(d => d.enabled).length : 0;
+    const missing = s.missingPolicies ? s.missingPolicies.length : 0;
+
+    el.innerHTML = `
+      <div class="pm-card" style="text-align:center;"><div class="pm-stat-value" style="color:${color};">${s.score}%</div><div class="pm-stat-label">Security Score</div><div style="font-size:10px;color:${color};">${s.riskLevel.toUpperCase()}</div></div>
+      <div class="pm-card" style="text-align:center;"><div class="pm-stat-value">${enabled}/${count}</div><div class="pm-stat-label">Policies Active</div></div>
+      <div class="pm-card" style="text-align:center;"><div class="pm-stat-value" style="color:${missing > 0 ? '#facc15' : '#4ade80'};">${missing}</div><div class="pm-stat-label">${missing > 0 ? 'Need Attention' : 'All Good'}</div></div>
+      <div class="pm-card" style="text-align:center;"><div class="pm-stat-value">${s.totalWeight || 0}</div><div class="pm-stat-label">Total Weight</div></div>`;
+  }
+
+  function renderPoliciesList(policies) {
+    const el = document.getElementById('policies-list');
+    if (!el) return;
+    if (!policies || policies.length === 0) {
+      el.innerHTML = '<div class="card" style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">No policies available</div>';
+      return;
+    }
+
+    let html = '<div class="card" style="padding:0;overflow:hidden;"><table class="pm-table"><thead><tr><th>Policy</th><th>Status</th><th>Risk</th><th>Description</th><th>Actions</th></tr></thead><tbody>';
+
+    for (const p of policies) {
+      const enabled = p.currentEnabled;
+      const statusColor = enabled ? '#4ade80' : '#ef4444';
+      const statusText = enabled ? 'Enabled' : 'Disabled';
+      const riskColor = p.riskLevel === 'high' ? '#ef4444' : p.riskLevel === 'medium' ? '#facc15' : '#3B82F6';
+      const riskLabel = p.riskLevel === 'high' ? 'Critical' : p.riskLevel === 'medium' ? 'Medium' : 'Low';
+
+      html += `<tr>
+        <td style="font-weight:600;color:rgba(255,255,255,0.85);">${p.name}</td>
+        <td><span class="pm-tag ${enabled ? 'pm-tag-green' : 'pm-tag-red'}" style="background:${enabled ? 'rgba(24,201,100,0.12)' : 'rgba(239,68,68,0.12)'};">${statusText}</span></td>
+        <td><span class="pm-tag ${p.riskLevel === 'high' ? 'pm-tag-red' : p.riskLevel === 'medium' ? 'pm-tag-orange' : 'pm-tag-blue'}">${riskLabel}</span></td>
+        <td style="font-size:12px;color:rgba(255,255,255,0.5);max-width:250px;">${p.description}</td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            ${!enabled ? `<button class="pm-btn pm-btn-sm pm-btn-primary" onclick="window.policiesApply('${p.id}')">Apply</button>` : `<button class="pm-btn pm-btn-sm pm-btn-danger" onclick="window.policiesDisable('${p.id}')">Disable</button>`}
+            ${p.canRestore ? `<button class="pm-btn pm-btn-sm pm-btn-secondary" onclick="window.policiesRestore('${p.id}')">Default</button>` : ''}
+          </div>
+        </td>
+      </tr>`;
+    }
+
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+
+  window.policiesApply = async function(id) {
+    if (!window.ishguard) return;
+    const policy = _policiesData?.find(p => p.id === id);
+    if (!policy) return;
+
+    const confirmed = await showConfirm(`Enable "${policy.name}"?\n\n${policy.description}\n\nThis may require Administrator privileges.`, 'Apply Policy');
+    if (!confirmed) return;
+
+    try {
+      const result = await window.ishguard.policiesApply(id);
+      if (result.success) {
+        showAlert(result.message || `${policy.name} enabled successfully.`, 'Policy Applied');
+      } else {
+        showAlert(result.error || 'Failed to apply policy. Try running as Administrator.', 'Error');
+      }
+      window.loadSecurityPolicies();
+    } catch (e) {
+      showAlert('Error: ' + e.message, 'Error');
+    }
+  };
+
+  window.policiesDisable = async function(id) {
+    if (!window.ishguard) return;
+    const policy = _policiesData?.find(p => p.id === id);
+    if (!policy) return;
+    if (!policy.canDisable) {
+      showAlert(`${policy.name} cannot be disabled.`, 'Policy');
+      return;
+    }
+
+    const confirmed = await showConfirm(`Disable "${policy.name}"?\n\n${policy.description}\n\nDisabling this policy may reduce security.`, 'Disable Policy');
+    if (!confirmed) return;
+
+    try {
+      const result = await window.ishguard.policiesDisable(id);
+      if (result.success) {
+        showAlert(result.message || `${policy.name} disabled.`, 'Policy Disabled');
+      } else {
+        showAlert(result.error || 'Failed to disable policy.', 'Error');
+      }
+      window.loadSecurityPolicies();
+    } catch (e) {
+      showAlert('Error: ' + e.message, 'Error');
+    }
+  };
+
+  window.policiesRestore = async function(id) {
+    if (!window.ishguard) return;
+    const policy = _policiesData?.find(p => p.id === id);
+    if (!policy) return;
+
+    const confirmed = await showConfirm(`Restore "${policy.name}" to default settings?`, 'Restore Default');
+    if (!confirmed) return;
+
+    try {
+      const result = await window.ishguard.policiesRestore(id);
+      if (result.success) {
+        showAlert(result.message || `${policy.name} defaults restored.`, 'Restored');
+      } else {
+        showAlert(result.error || 'Failed to restore defaults.', 'Error');
+      }
+      window.loadSecurityPolicies();
+    } catch (e) {
+      showAlert('Error: ' + e.message, 'Error');
+    }
+  };
+
+  window.policiesPreviewBanner = function() {
+    const title = document.getElementById('banner-title-input')?.value || 'ISHGUARD SECURITY SYSTEM';
+    const message = document.getElementById('banner-message-input')?.value || '';
+    showModal(`
+      <div style="margin-bottom:16px;font-size:14px;font-weight:600;color:rgba(255,255,255,0.9);">Login Banner Preview</div>
+      <div style="background:rgba(5,10,18,0.8);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:20px;margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:700;color:#FF6B00;margin-bottom:12px;text-align:center;">${escapeHtml(title)}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;white-space:pre-wrap;">${escapeHtml(message)}</div>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.3);">This message will appear on the Windows login screen.</div>
+      <button onclick="this.closest('.modal-backdrop').remove()" class="modal-btn" style="width:100%;background:#FF6B00;color:#fff;margin-top:16px;">Close</button>
+    `, { closeOnClick: true });
+  };
+
+  window.policiesApplyBanner = async function() {
+    if (!window.ishguard) return;
+    const title = document.getElementById('banner-title-input')?.value || 'ISHGUARD SECURITY SYSTEM';
+    const message = document.getElementById('banner-message-input')?.value || '';
+
+    const confirmed = await showConfirm('Apply this login banner? It will appear on the Windows login screen.\n\nAdministrator privileges are required.', 'Apply Login Banner');
+    if (!confirmed) return;
+
+    try {
+      const result = await window.ishguard.policiesBannerSet({ title, message });
+      if (result.success) {
+        showAlert(result.message || 'Login banner applied successfully.', 'Banner Applied');
+        const statusEl = document.getElementById('banner-status');
+        if (statusEl) statusEl.innerHTML = '<span style="color:#4ade80;">● Configured</span>';
+      } else {
+        showAlert(result.error || 'Failed to apply banner. Try running as Administrator.', 'Error');
+      }
+    } catch (e) {
+      showAlert('Error: ' + e.message, 'Error');
+    }
+  };
+
+  window.policiesRemoveBanner = async function() {
+    if (!window.ishguard) return;
+    const confirmed = await showConfirm('Remove the login banner?', 'Remove Banner');
+    if (!confirmed) return;
+
+    try {
+      const result = await window.ishguard.policiesBannerRemove();
+      if (result.success) {
+        showAlert(result.message || 'Login banner removed.', 'Banner Removed');
+        const statusEl = document.getElementById('banner-status');
+        if (statusEl) statusEl.innerHTML = '<span style="color:rgba(255,255,255,0.3);">○ Not Configured</span>';
+      } else {
+        showAlert(result.error || 'Failed to remove banner.', 'Error');
+      }
+    } catch (e) {
+      showAlert('Error: ' + e.message, 'Error');
+    }
+  };
+
+  window.policiesRestoreBanner = function() {
+    document.getElementById('banner-title-input').value = 'ISHGUARD SECURITY SYSTEM';
+    document.getElementById('banner-message-input').value = 'This system is owned and protected by IshGuard Security.\n\nAccess is restricted to authorized users only.\n\nBy continuing, you acknowledge that your activity may be monitored, recorded, and audited.\n\nIf you are not an authorized user, disconnect immediately.';
+    showAlert('Banner fields restored to defaults. Click "Apply" to save.', 'Defaults Restored');
+  };
+
+  window.policiesExport = async function() {
+    if (!window.ishguard) return;
+    try {
+      const report = await window.ishguard.policiesExport();
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'security-policies-report-' + new Date().toISOString().split('T')[0] + '.json';
+      a.click();
+      showAlert('Security policies report exported successfully.', 'Export');
+    } catch (e) {
+      showAlert('Export error: ' + e.message, 'Error');
+    }
+  };
 
   function fmtBytes(bytes) {
     if (!bytes || bytes === 0) return '0 B';

@@ -1,3 +1,4 @@
+import { setImmediate as _setImmediate } from 'timers';
 import { scanSystemHealth, getStartupPrograms } from './scanners/system-health.js';
 import { scanNetwork, getWifiSecurity } from './scanners/network.js';
 import { scanProcesses } from './scanners/process-monitor.js';
@@ -18,14 +19,18 @@ import { validateUrl, detectFileType, detectPageType, checkDrm, isDirectDownload
 import { createSnapshot, createManualSnapshot, getVersionHistory, restoreVersion, compareVersions, deleteSnapshot, restoreDeletedFile, restoreEncryptedFile, performRansomwareRollback, scheduleSnapshot, runScheduledSnapshots, getRecoveryStats, backupRecoveryDb, createIncrementalBackup, createFullBackup, verifyBackupIntegrity, runVersionRecoveryScan } from './scanners/version-recovery.js';
 import { listProtectedFolders, protectFolder, unlockFolder, lockFolder, lockAllFolders, unlockAllFolders, removeProtection, getFolderLockStats, getFolderHistory, searchProtectedFolders, toggleFavorite, regenerateRecoveryKey, verifyRecoveryKey, backupConfig, restoreConfig, runFolderLockScan } from './scanners/folder-lock.js';
 import { watchFolder, unwatchFolder, getWatchedFolders, scanForSuspiciousActivity, getActivityTimeline, getAllActivityTimeline, quarantineThreat, restoreFromQuarantine, getGuardianStats, runGuardianScan, runAllGuardianScans, clearTimeline } from './scanners/folder-guardian.js';
-import { registerPin, verifyPin, registerPassword, verifyPassword, checkWindowsHello, registerFaceTemplate, verifyFace, getAuthMethods, setAutoLockTimer, getAutoLockTimer, setAutoLockTriggers, getAutoLockTriggers, recordFailedAttempt, getFailedAttempts, resetFailedAttempts, checkCameraPrivacy, getLockScreenConfig, setLockScreenConfig, getScreenLockStatus, runScreenLockScan } from './scanners/screen-lock.js';
+import { registerPin, verifyPin, registerPassword, verifyPassword, checkWindowsHello, registerFaceTemplate, verifyFace, getAuthMethods, setAutoLockTimer, getAutoLockTimer, setAutoLockTriggers, getAutoLockTriggers, recordFailedAttempt, getFailedAttempts, resetFailedAttempts, checkCameraPrivacy, getLockScreenConfig, setLockScreenConfig, getScreenLockStatus, runScreenLockScan, lockScreen, unlockScreen } from './scanners/screen-lock.js';
 import { activateEmergencyLock, deactivateEmergencyLock, getEmergencyStatus, getEmergencyHistory, configureEmergencyOptions, getEmergencyOptions, generateAuthToken, runEmergencyLockScan } from './scanners/emergency-lock.js';
+import { scanPrivacy, cleanPrivacy, getPrivacyLastCleaned, getPrivacyLog, exportPrivacyReport, getPrivacyStats } from './privacy/index.js';
+import { getPolicies, applyPolicy, disablePolicy, restorePolicyDefault, getLoginBanner, setLoginBanner, removeLoginBanner, getSecurityScore, exportHardeningReport, getHardeningLog } from './hardening/index.js';
 
 export { createSnapshot, createManualSnapshot, getVersionHistory, restoreVersion, compareVersions, deleteSnapshot, restoreDeletedFile, restoreEncryptedFile, performRansomwareRollback, scheduleSnapshot, runScheduledSnapshots, getRecoveryStats, backupRecoveryDb, createIncrementalBackup, createFullBackup, verifyBackupIntegrity, runVersionRecoveryScan } from './scanners/version-recovery.js';
-export { listProtectedFolders, protectFolder, unlockFolder, lockFolder, lockAllFolders, unlockAllFolders, removeProtection, getFolderLockStats, getFolderHistory, searchProtectedFolders, toggleFavorite, regenerateRecoveryKey, verifyRecoveryKey, backupConfig, restoreConfig, runFolderLockScan } from './scanners/folder-lock.js';
+export { listProtectedFolders, protectFolder, unlockFolder, lockFolder, lockAllFolders, unlockAllFolders, removeProtection, getFolderLockStats, getFolderHistory, searchProtectedFolders, toggleFavorite, regenerateRecoveryKey, verifyRecoveryKey, backupConfig, restoreConfig, runFolderLockScan, isFolderAccessible } from './scanners/folder-lock.js';
 export { watchFolder, unwatchFolder, getWatchedFolders, scanForSuspiciousActivity, getActivityTimeline, getAllActivityTimeline, quarantineThreat, restoreFromQuarantine, getGuardianStats, runGuardianScan, runAllGuardianScans, clearTimeline } from './scanners/folder-guardian.js';
-export { registerPin, verifyPin, registerPassword, verifyPassword, checkWindowsHello, registerFaceTemplate, verifyFace, getAuthMethods, setAutoLockTimer, getAutoLockTimer, setAutoLockTriggers, getAutoLockTriggers, recordFailedAttempt, getFailedAttempts, resetFailedAttempts, checkCameraPrivacy, getLockScreenConfig, setLockScreenConfig, getScreenLockStatus, runScreenLockScan } from './scanners/screen-lock.js';
+export { registerPin, verifyPin, registerPassword, verifyPassword, checkWindowsHello, registerFaceTemplate, verifyFace, getAuthMethods, setAutoLockTimer, getAutoLockTimer, setAutoLockTriggers, getAutoLockTriggers, recordFailedAttempt, getFailedAttempts, resetFailedAttempts, checkCameraPrivacy, getLockScreenConfig, setLockScreenConfig, getScreenLockStatus, runScreenLockScan, lockScreen, unlockScreen } from './scanners/screen-lock.js';
 export { activateEmergencyLock, deactivateEmergencyLock, getEmergencyStatus, getEmergencyHistory, configureEmergencyOptions, getEmergencyOptions, generateAuthToken, runEmergencyLockScan } from './scanners/emergency-lock.js';
+export { scanPrivacy, cleanPrivacy, getPrivacyLastCleaned, getPrivacyLog, exportPrivacyReport, getPrivacyStats } from './privacy/index.js';
+export { getPolicies, applyPolicy, disablePolicy, restorePolicyDefault, getLoginBanner, setLoginBanner, removeLoginBanner, getSecurityScore, exportHardeningReport, getHardeningLog } from './hardening/index.js';
 export { SecurityEngine } from './rules-engine.js';
 export { scanSystemHealth, getStartupPrograms } from './scanners/system-health.js';
 export { scanNetwork, getWifiSecurity } from './scanners/network.js';
@@ -43,6 +48,10 @@ export { SmartVault } from './readers/smart-vault.js';
 export { AIReader } from './readers/ai-reader.js';
 export { analyzeContent, extractMetadata, extractTextFromHtml, cleanHtml, extractImagesFromHtml, classifyContent } from './readers/content-capture.js';
 export { validateUrl, detectFileType, detectPageType, checkDrm, isDirectDownload, isLikelyArticle } from './readers/compliance.js';
+
+export function yieldToEventLoop() {
+  return new Promise(resolve => _setImmediate(resolve));
+}
 
 let _aiAdvisor = null;
 export function getAIAdvisor() {
@@ -62,28 +71,34 @@ export function getReader() {
   return _reader;
 }
 
-export function runFullScan() {
+export async function runFullScan() {
   const engine = new SecurityEngine();
   console.log('[ISHGuard v3.0] Enterprise AI Security Engine');
   console.log('[ISHGuard v3.0] Running full system scan...\n');
 
   const health = scanSystemHealth();
+  await yieldToEventLoop();
   console.log(`[CPU] ${health.cpu.usagePercent}% — ${health.cpu.status}`);
   console.log(`[MEM] ${health.memory.usagePercent}% — ${health.memory.status}`);
   console.log(`[DISK] ${health.disk.usagePercent}% — ${health.disk.status}`);
 
   const network = scanNetwork();
+  await yieldToEventLoop();
   console.log(`[NET] Public: ${network.publicWifi} | Firewall: ${network.firewallActive === null ? 'unknown' : network.firewallActive ? 'active' : 'disabled'} — ${network.status}`);
 
   const processes = scanProcesses();
+  await yieldToEventLoop();
   console.log(`[PROC] ${processes.total} processes, ${processes.threatCount} threats — ${processes.status}`);
 
   const snapshot = { health, network, processes };
   const verdict = engine.evaluate(snapshot);
+  await yieldToEventLoop();
   const advisor = getAIAdvisor();
   const analysis = advisor.analyze({ health, network, processes, verdict });
-  const validation = validateAllModules();
+  await yieldToEventLoop();
+  const validation = await validateAllModules();
   const hardening = getHardeningSummary();
+  await yieldToEventLoop();
 
   console.log(`\n[ISHGuard v3.0] Scan complete.`);
   console.log(`[STATUS] ${verdict.status.toUpperCase()}`);
@@ -162,5 +177,5 @@ export function runEmergencyFullScan() {
 }
 
 if (process.argv[1] && process.argv[1].includes('index.js')) {
-  runFullScan();
+  runFullScan().catch(e => console.error(e));
 }

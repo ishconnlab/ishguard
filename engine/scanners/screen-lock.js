@@ -575,6 +575,34 @@ export function getScreenLockStatus() {
   }
 }
 
+export function lockScreen() {
+  try {
+    if (process.platform !== 'win32') {
+      return { success: false, error: 'Screen lock is only supported on Windows' };
+    }
+    const config = loadConfig();
+    if (!config.passwordHash && !config.pinHash) {
+      return { success: false, error: 'No password or PIN registered. Set a password first.' };
+    }
+    execSync('rundll32.exe user32.dll,LockWorkStation', { timeout: 5000, windowsHide: true });
+    return { success: true, message: 'Screen locked. Enter your ISHGuard password to unlock.', lockedAt: new Date().toISOString() };
+  } catch (err) {
+    try {
+      execSync('powershell -NoProfile -Command "(New-Object -ComObject Shell.Application).WindowsSecurity()"', { timeout: 5000, windowsHide: true });
+      return { success: true, message: 'Screen locked via Windows Security.', lockedAt: new Date().toISOString() };
+    } catch {
+      return { success: false, error: err.message };
+    }
+  }
+}
+
+export function unlockScreen(password) {
+  if (!password || typeof password !== 'string') {
+    return { valid: false, error: 'Password is required' };
+  }
+  return verifyPassword(password);
+}
+
 export function runScreenLockScan() {
   try {
     const config = loadConfig();

@@ -4,7 +4,7 @@ export class AIAdvisor {
   }
 
   analyze(scanResults) {
-    const { health, network, processes, malware, verdict, fileIntegrity, registry, memory, browser, credentials } = scanResults;
+    const { health, network, processes, malware, verdict, fileIntegrity, registry, memory, browser, credentials, privacy, securityPolicies } = scanResults;
     const findings = [];
     let riskScore = 0;
 
@@ -17,6 +17,8 @@ export class AIAdvisor {
     this._analyzeBrowser(browser, findings, risk => riskScore += risk);
     this._analyzeFileIntegrity(fileIntegrity, findings, risk => riskScore += risk);
     this._analyzeCredentials(credentials, findings, risk => riskScore += risk);
+    this._analyzePrivacy(privacy, findings, risk => riskScore += risk);
+    this._analyzeSecurityPolicies(securityPolicies, findings, risk => riskScore += risk);
 
     riskScore = Math.min(100, Math.max(0, riskScore));
     const riskLevel = riskScore >= 70 ? 'critical' : riskScore >= 40 ? 'high' : riskScore >= 15 ? 'medium' : 'low';
@@ -330,6 +332,43 @@ export class AIAdvisor {
         action: f.recommendation,
         autoFix: f.autoFix
       }));
+  }
+
+  _analyzePrivacy(privacy, findings, addRisk) {
+    if (!privacy) return;
+    if (privacy.totalBytes > 500000000) {
+      addRisk(10);
+      findings.push(this._finding('info', 'privacy', 'Large Privacy Cleanup Available', `${privacy.totalFormatted} reclaimable across ${privacy.categories.length} categories`, 'Your system has accumulated significant temporary files, caches, and browsing data that can be safely cleaned.', 'Run Privacy Cleaner to free up disk space and remove browsing traces.', true, '', '', 'privacy', '1. Open ISHGuard and go to Privacy Cleaner\n2. Review the categories and select items to clean\n3. Click "Clean Selected" to remove temporary files\n4. Regular cleaning improves performance and privacy', 3));
+    } else if (privacy.totalBytes > 100000000) {
+      addRisk(5);
+      findings.push(this._finding('info', 'privacy', 'Privacy Cleanup Recommended', `${privacy.totalFormatted} can be reclaimed`, 'Some temporary files and caches can be cleaned to free up space and improve privacy.', 'Consider running Privacy Cleaner for routine maintenance.', false, '', '', 'privacy', '1. Open ISHGuard → Privacy Cleaner\n2. Review categories and clean what you don\'t need\n3. Schedule weekly cleaning for best results', 3));
+    }
+    if (privacy.browsers && privacy.browsers.length > 0) {
+      findings.push(this._finding('success', 'privacy', 'Browser Cache Detected', `${privacy.browsers.length} browser${privacy.browsers.length > 1 ? 's' : ''} found: ${privacy.browsers.join(', ')}`, 'Detected browsers can have their caches, cookies, and history cleaned.', 'Use Privacy Cleaner to manage browser data.', false, '', '', 'privacy', '', 4));
+    }
+  }
+
+  _analyzeSecurityPolicies(policies, findings, addRisk) {
+    if (!policies || !policies.details) return;
+    const missing = policies.details.filter(d => !d.enabled && d.id !== 'login-banner');
+    const disabledCritical = missing.filter(d => d.riskLevel === 'high');
+
+    if (disabledCritical.length > 0) {
+      addRisk(disabledCritical.length * 15);
+      findings.push(this._finding('warning', 'policies', 'Critical Security Policies Disabled', `${disabledCritical.length} high-risk polic${disabledCritical.length > 1 ? 'ies' : 'y'} not active`, `${disabledCritical.map(d => d.name).join(', ')} ${disabledCritical.length > 1 ? 'are' : 'is'} disabled, exposing your system to attacks.`, 'Enable all critical security policies immediately to protect your system.', true, '', '', 'policies', '1. Open ISHGuard → Security Policies\n2. Review policies marked as "Disabled"\n3. Click "Apply" next to each critical policy\n4. Some policies require Administrator privileges\n5. Restart your computer for some changes to take effect', 2));
+    }
+
+    if (missing.length > 0) {
+      const riskAdded = missing.length * 5;
+      addRisk(riskAdded);
+      policies.missingPolicies?.filter(p => p.riskLevel !== 'high').forEach(p => {
+        findings.push(this._finding('warning', 'policies', `${p.name} Not Configured`, `${p.name} is ${p.riskLevel === 'medium' ? 'not optimally' : 'not'} configured`, `This security setting is not at the recommended level.`, p.recommendation, true, '', '', 'policies', `1. Go to Security Policies in ISHGuard\n2. Find "${p.name}" in the list\n3. Review the recommended action\n4. Click "Apply" to enable it`, 3));
+      });
+    }
+
+    if (missing.length === 0) {
+      findings.push(this._finding('success', 'policies', 'All Security Policies Active', 'All critical and recommended policies are enabled', 'Your system security policies are properly configured.', 'No action needed.', false, '', '', 'policies', '', 4));
+    }
   }
 
   _getBreakdown(findings) {

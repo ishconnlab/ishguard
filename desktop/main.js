@@ -9,6 +9,8 @@ let mainWindow;
 let tray;
 let apiServer;
 let engineCache = null;
+let lastFullScanResult = null;
+let lastFullScanTime = 0;
 
 function getEnginePath() {
   const isDev = !app.isPackaged;
@@ -106,9 +108,24 @@ function registerIPC(engine) {
   ipcMain.handle('quarantine:threats', wrap((m, threats) => m.quarantineThreats(threats)));
 
   ipcMain.handle('ai:analyze', wrap((m, data) => m.runAIAnalysis(data)));
-  ipcMain.handle('ai:full-scan', wrap((m) => m.runFullScan()));
-  ipcMain.handle('ai:scan-and-analyze', wrap((m) => m.runFullScan()));
-  ipcMain.handle('ai:analyze-current', wrap((m) => m.runFullScan()));
+  ipcMain.handle('ai:full-scan', wrap((m) => {
+    lastFullScanResult = m.runFullScan();
+    lastFullScanTime = Date.now();
+    return lastFullScanResult;
+  }));
+  ipcMain.handle('ai:scan-and-analyze', wrap((m) => {
+    lastFullScanResult = m.runFullScan();
+    lastFullScanTime = Date.now();
+    return lastFullScanResult;
+  }));
+  ipcMain.handle('ai:analyze-current', wrap((m) => {
+    const FIVE_MIN = 300000;
+    if (!lastFullScanResult || (Date.now() - lastFullScanTime) > FIVE_MIN) {
+      lastFullScanResult = m.runFullScan();
+      lastFullScanTime = Date.now();
+    }
+    return lastFullScanResult;
+  }));
 
   ipcMain.handle('validate:modules', wrap((m) => m.validateAllModules()));
   ipcMain.handle('validate:readiness', wrap((m) => m.getSystemReadiness()));
@@ -153,6 +170,7 @@ function registerIPC(engine) {
   ipcMain.handle('folder-lock:backup', wrap((m, dest) => m.backupConfig(dest)));
   ipcMain.handle('folder-lock:restore', wrap((m, src) => m.restoreConfig(src)));
   ipcMain.handle('folder-lock:run-scan', wrap((m) => m.runFolderLockFullScan()));
+  ipcMain.handle('folder-lock:accessible', wrap((m, path) => m.isFolderAccessible(path)));
 
   // Version Recovery
   ipcMain.handle('version:create-snapshot', wrap((m, p) => m.createSnapshot(p.path, p.label)));
@@ -204,6 +222,8 @@ function registerIPC(engine) {
   ipcMain.handle('screen-lock:set-config', wrap((m, c) => m.setLockScreenConfig(c)));
   ipcMain.handle('screen-lock:status', wrap((m) => m.getScreenLockStatus()));
   ipcMain.handle('screen-lock:run-scan', wrap((m) => m.runScreenLockFullScan()));
+  ipcMain.handle('screen-lock:lock', wrap((m) => m.lockScreen()));
+  ipcMain.handle('screen-lock:unlock', wrap((m, password) => m.unlockScreen(password)));
 
   // Emergency Lock
   ipcMain.handle('emergency:activate', wrap((m, opts) => m.activateEmergencyLock(opts)));
@@ -214,6 +234,26 @@ function registerIPC(engine) {
   ipcMain.handle('emergency:options', wrap((m) => m.getEmergencyOptions()));
   ipcMain.handle('emergency:generate-token', wrap((m) => m.generateAuthToken()));
   ipcMain.handle('emergency:run-scan', wrap((m) => m.runEmergencyFullScan()));
+
+  // Privacy Cleaner
+  ipcMain.handle('privacy:scan', wrap((m) => m.scanPrivacy()));
+  ipcMain.handle('privacy:clean', wrap((m, ids) => m.cleanPrivacy(ids)));
+  ipcMain.handle('privacy:stats', wrap((m) => m.getPrivacyStats()));
+  ipcMain.handle('privacy:last-cleaned', wrap((m) => m.getPrivacyLastCleaned()));
+  ipcMain.handle('privacy:log', wrap((m) => m.getPrivacyLog()));
+  ipcMain.handle('privacy:export', wrap((m) => m.exportPrivacyReport()));
+
+  // Security Policies
+  ipcMain.handle('policies:list', wrap((m) => m.getPolicies()));
+  ipcMain.handle('policies:apply', wrap((m, id) => m.applyPolicy(id)));
+  ipcMain.handle('policies:disable', wrap((m, id) => m.disablePolicy(id)));
+  ipcMain.handle('policies:restore', wrap((m, id) => m.restorePolicyDefault(id)));
+  ipcMain.handle('policies:score', wrap((m) => m.getSecurityScore()));
+  ipcMain.handle('policies:banner-get', wrap((m) => m.getLoginBanner()));
+  ipcMain.handle('policies:banner-set', wrap((m, config) => m.setLoginBanner(config)));
+  ipcMain.handle('policies:banner-remove', wrap((m) => m.removeLoginBanner()));
+  ipcMain.handle('policies:export', wrap((m) => m.exportHardeningReport()));
+  ipcMain.handle('policies:log', wrap((m) => m.getHardeningLog()));
 
   ipcMain.handle('system:home-dir', () => require('os').homedir());
 
@@ -250,7 +290,8 @@ function startAPIServer() {
       } else if (req.method === 'GET' && pathParts[1] === 'processes') {
         res.end(JSON.stringify(engine.scanProcesses()));
       } else if (req.method === 'GET' && pathParts[1] === 'full') {
-        res.end(JSON.stringify({ ...engine.runFullScan(), version: '3.0.0' }));
+        const fullScan = await engine.runFullScan();
+        res.end(JSON.stringify({ ...fullScan, version: '3.0.0' }));
       } else if (req.method === 'GET' && pathParts[1] === 'info') {
         res.end(JSON.stringify({ name: 'ISHGuard Engine', version: '3.0.0', modules: 48, status: 'operational' }));
       } else if (req.method === 'GET' && pathParts[1] === 'vault' && pathParts[2] === 'items') {

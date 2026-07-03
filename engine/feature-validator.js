@@ -22,8 +22,10 @@ import { listProtectedFolders, getFolderLockStats } from './scanners/folder-lock
 import { getRecoveryStats } from './scanners/version-recovery.js';
 import { getGuardianStats } from './scanners/folder-guardian.js';
 import { getScreenLockStatus } from './scanners/screen-lock.js';
+import { scanPrivacy, getPrivacyStats } from './privacy/index.js';
+import { getPolicies, getLoginBanner, getSecurityScore } from './hardening/index.js';
 
-export function validateAllModules() {
+export async function validateAllModules() {
   const modules = [];
   let passed = 0, failed = 0, warnings = 0;
   const timestamp = new Date().toISOString();
@@ -233,11 +235,41 @@ export function validateAllModules() {
     else fail('Emergency Lock Mode', 'Invalid response');
   } catch (e) { fail('Emergency Lock Mode', e.message); }
 
+  try {
+    const privacyScan = await scanPrivacy();
+    if (privacyScan && typeof privacyScan.totalBytes !== 'undefined') pass('Privacy Cleaner', { categories: privacyScan.categories.length, reclaimable: privacyScan.totalFormatted });
+    else fail('Privacy Cleaner', 'Invalid response');
+  } catch (e) { fail('Privacy Cleaner', e.message); }
+
+  try {
+    const pStats = await getPrivacyStats();
+    if (pStats && typeof pStats.currentReclaimable !== 'undefined') pass('Privacy Cleaner Stats', { reclaimable: pStats.currentReclaimableFormatted });
+    else fail('Privacy Cleaner Stats', 'Invalid response');
+  } catch (e) { fail('Privacy Cleaner Stats', e.message); }
+
+  try {
+    const policies = getPolicies();
+    if (policies && Array.isArray(policies)) pass('Security Policies', { policies: policies.length });
+    else fail('Security Policies', 'Invalid response');
+  } catch (e) { fail('Security Policies', e.message); }
+
+  try {
+    const score = getSecurityScore();
+    if (score && typeof score.score !== 'undefined') pass('Security Score', { score: score.score, risk: score.riskLevel });
+    else fail('Security Score', 'Invalid response');
+  } catch (e) { fail('Security Score', e.message); }
+
+  try {
+    const banner = getLoginBanner();
+    if (banner && typeof banner.configured !== 'undefined') pass('Login Banner', { configured: banner.configured });
+    else fail('Login Banner', 'Invalid response');
+  } catch (e) { fail('Login Banner', e.message); }
+
   return { passed, failed, warnings, modules, timestamp };
 }
 
-export function getSystemReadiness() {
-  const validation = validateAllModules();
+export async function getSystemReadiness() {
+  const validation = await validateAllModules();
 
   let readiness = 'full';
   if (validation.failed > 5) readiness = 'limited';

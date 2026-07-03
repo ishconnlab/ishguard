@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import crypto from 'crypto';
-import { execFileSync } from 'child_process';
+import { execSync, execFileSync } from 'child_process';
 
 const CONFIG_DIR = path.join(os.homedir(), '.ishguard');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'folder-lock.json');
@@ -531,34 +531,96 @@ function calculateSecurityScore(folders) {
   return Math.max(0, Math.min(100, score));
 }
 
-function applyAclLock(folderPath) {
-  if (process.platform !== 'win32') return;
-  if (!folderPath || !fs.existsSync(folderPath)) return;
+const BRAND_TEXT = `🔒 PROTECTED BY ISHGUARD SECURITY SUITE v3.0
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  const userName = os.userInfo().username;
-  execFileSync('powershell', [
-    '-NoProfile',
-    '-Command',
-    `$acl = Get-Acl -Path "${folderPath}"; ` +
-    `$rule = New-Object System.Security.AccessControl.FileSystemAccessRule("${userName}","Write,DELETE,CreateDirectories,CreateFiles,DeleteSubdirectoriesAndFiles","ContainerInherit,ObjectInherit","None","Deny"); ` +
-    `$acl.AddAccessRule($rule); ` +
-    `Set-Acl -Path "${folderPath}" -AclObject $acl`
-  ], { timeout: 10000, windowsHide: true, stdio: 'pipe' });
+This folder is locked and protected by ISHGuard Security Suite.
+
+• You must enter your ISHGuard password to access this folder.
+• Any attempt to bypass this protection will be logged.
+• ISHGuard monitors for tampering and unauthorized access.
+
+To unlock this folder:
+  1. Open ISHGuard Security Suite
+  2. Go to Folder Lock Manager
+  3. Find this folder and click "Unlock"
+  4. Enter your password when prompted
+
+ISHGuard — AI-Powered Security for Your Digital Life
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+function writeBrandingFiles(folderPath) {
+  try {
+    const desktopIni = path.join(folderPath, 'desktop.ini');
+    const readmeFile = path.join(folderPath, '🔒 PROTECTED BY ISHGuard.txt');
+    if (!fs.existsSync(desktopIni)) {
+      fs.writeFileSync(desktopIni, `[.ShellClassInfo]\r\nInfoTip=🔒 Protected by ISHGuard Security Suite\r\nIconFile=C:\\Windows\\System32\\shell32.dll\r\nIconIndex=177\r\n`, 'utf8');
+      fs.writeFileSync(readmeFile, BRAND_TEXT, 'utf8');
+    }
+  } catch {}
+}
+
+function removeBrandingFiles(folderPath) {
+  try {
+    const readmeFile = path.join(folderPath, '🔒 PROTECTED BY ISHGuard.txt');
+    if (fs.existsSync(readmeFile)) fs.unlinkSync(readmeFile);
+  } catch {}
+}
+
+function applyAclLock(folderPath) {
+  if (process.platform !== 'win32') return false;
+  if (!folderPath || !fs.existsSync(folderPath)) return false;
+
+  try {
+    writeBrandingFiles(folderPath);
+
+    const userName = os.userInfo().username;
+    execFileSync('powershell', [
+      '-NoProfile', '-Command',
+      `$acl = Get-Acl -Path "${folderPath}"; ` +
+      `$rule = New-Object System.Security.AccessControl.FileSystemAccessRule("${userName}","FullControl","ContainerInherit,ObjectInherit","None","Deny"); ` +
+      `$acl.AddAccessRule($rule); ` +
+      `Set-Acl -Path "${folderPath}" -AclObject $acl`
+    ], { timeout: 15000, windowsHide: true, stdio: 'pipe' });
+    return true;
+  } catch {
+    try {
+      execSync(`icacls "${folderPath}" /deny ${os.userInfo().username}:(OI)(CI)F /T /Q`, { timeout: 15000, windowsHide: true });
+      return true;
+    } catch { return false; }
+  }
 }
 
 function removeAclLock(folderPath) {
-  if (process.platform !== 'win32') return;
-  if (!folderPath || !fs.existsSync(folderPath)) return;
+  if (process.platform !== 'win32') return false;
+  if (!folderPath || !fs.existsSync(folderPath)) return false;
 
-  const userName = os.userInfo().username;
   try {
+    removeBrandingFiles(folderPath);
+
+    const userName = os.userInfo().username;
     execFileSync('powershell', [
-      '-NoProfile',
-      '-Command',
+      '-NoProfile', '-Command',
       `$acl = Get-Acl -Path "${folderPath}"; ` +
       `$rules = $acl.GetAccessRules($true, $true, [System.Security.Principal.NTAccount]) | Where-Object { $_.IdentityReference -eq "${userName}" -and $_.AccessControlType -eq "Deny" }; ` +
       `foreach ($rule in $rules) { $acl.RemoveAccessRule($rule) }; ` +
       `Set-Acl -Path "${folderPath}" -AclObject $acl`
-    ], { timeout: 10000, windowsHide: true, stdio: 'pipe' });
-  } catch {}
+    ], { timeout: 15000, windowsHide: true, stdio: 'pipe' });
+    return true;
+  } catch {
+    try {
+      execSync(`icacls "${folderPath}" /remove:d "${os.userInfo().username}" /T /Q`, { timeout: 15000, windowsHide: true });
+      return true;
+    } catch { return false; }
+  }
+}
+
+export function isFolderAccessible(folderPath) {
+  if (!folderPath || !fs.existsSync(folderPath)) return false;
+  try {
+    const testFile = path.join(folderPath, '.ishguard-test-' + Date.now());
+    fs.writeFileSync(testFile, 'test');
+    fs.unlinkSync(testFile);
+    return true;
+  } catch { return false; }
 }

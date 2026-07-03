@@ -87,6 +87,7 @@ contextBridge.exposeInMainWorld('ishguard', {
   folderLockBackup: (...args) => ipcRenderer.invoke('folder-lock:backup', ...args),
   folderLockRestore: (...args) => ipcRenderer.invoke('folder-lock:restore', ...args),
   folderLockRunScan: (...args) => ipcRenderer.invoke('folder-lock:run-scan', ...args),
+  folderLockAccessible: (...args) => ipcRenderer.invoke('folder-lock:accessible', ...args),
 
   // Version Recovery
   versionCreateSnapshot: (...args) => ipcRenderer.invoke('version:create-snapshot', ...args),
@@ -138,6 +139,8 @@ contextBridge.exposeInMainWorld('ishguard', {
   screenLockSetConfig: (...args) => ipcRenderer.invoke('screen-lock:set-config', ...args),
   screenLockStatus: (...args) => ipcRenderer.invoke('screen-lock:status', ...args),
   screenLockRunScan: (...args) => ipcRenderer.invoke('screen-lock:run-scan', ...args),
+  screenLockLock: (...args) => ipcRenderer.invoke('screen-lock:lock', ...args),
+  screenLockUnlock: (...args) => ipcRenderer.invoke('screen-lock:unlock', ...args),
 
   // Emergency Lock
   emergencyActivate: (...args) => ipcRenderer.invoke('emergency:activate', ...args),
@@ -148,6 +151,26 @@ contextBridge.exposeInMainWorld('ishguard', {
   emergencyOptions: (...args) => ipcRenderer.invoke('emergency:options', ...args),
   emergencyGenerateToken: (...args) => ipcRenderer.invoke('emergency:generate-token', ...args),
   emergencyRunScan: (...args) => ipcRenderer.invoke('emergency:run-scan', ...args),
+
+  // Privacy Cleaner
+  privacyScan: (...args) => ipcRenderer.invoke('privacy:scan', ...args),
+  privacyClean: (...args) => ipcRenderer.invoke('privacy:clean', ...args),
+  privacyStats: (...args) => ipcRenderer.invoke('privacy:stats', ...args),
+  privacyLastCleaned: (...args) => ipcRenderer.invoke('privacy:last-cleaned', ...args),
+  privacyLog: (...args) => ipcRenderer.invoke('privacy:log', ...args),
+  privacyExport: (...args) => ipcRenderer.invoke('privacy:export', ...args),
+
+  // Security Policies
+  policiesList: (...args) => ipcRenderer.invoke('policies:list', ...args),
+  policiesApply: (...args) => ipcRenderer.invoke('policies:apply', ...args),
+  policiesDisable: (...args) => ipcRenderer.invoke('policies:disable', ...args),
+  policiesRestore: (...args) => ipcRenderer.invoke('policies:restore', ...args),
+  policiesScore: (...args) => ipcRenderer.invoke('policies:score', ...args),
+  policiesBannerGet: (...args) => ipcRenderer.invoke('policies:banner-get', ...args),
+  policiesBannerSet: (...args) => ipcRenderer.invoke('policies:banner-set', ...args),
+  policiesBannerRemove: (...args) => ipcRenderer.invoke('policies:banner-remove', ...args),
+  policiesExport: (...args) => ipcRenderer.invoke('policies:export', ...args),
+  policiesLog: (...args) => ipcRenderer.invoke('policies:log', ...args),
 
   // System
   getHomeDir: (...args) => ipcRenderer.invoke('system:home-dir', ...args),

@@ -1,11 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { setImmediate as _setImmediate } from 'timers';
+
+function yieldToEventLoop() {
+  return new Promise(resolve => _setImmediate(resolve));
+}
 
 export async function findDuplicates(rootDir, onProgress) {
   const fileMap = new Map();
   const duplicates = [];
   let scanned = 0;
+  let yieldCounter = 0;
   const visited = new Set();
 
   async function walk(dir) {
@@ -26,6 +32,11 @@ export async function findDuplicates(rootDir, onProgress) {
     for (const entry of entries) {
       if (scanned > 50000) break;
       const fullPath = path.join(dir, entry.name);
+
+      yieldCounter++;
+      if (yieldCounter % 50 === 0) {
+        await yieldToEventLoop();
+      }
 
       try {
         if (entry.isDirectory()) {

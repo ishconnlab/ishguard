@@ -6,7 +6,7 @@ console.log('  Self-Test Suite');
 console.log('=' .repeat(60));
 
 try {
-  const result = runFullScan();
+  const result = await runFullScan();
 
   console.log('\n  ── Bluetooth Security Check ──');
   const btDevices = scanBluetoothDevices();
